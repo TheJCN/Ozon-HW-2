@@ -1,0 +1,17 @@
+syntax = "proto3";
+package product.v1;
+option go_package = "OzonHW2/api/product/v1;productpb";
+
+service ProductService {
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+}
+
+message GetProductRequest {
+  int64 sku = 1; // Must be greater than zero.
+}
+
+message GetProductResponse {
+  int64 sku = 1;
+  string name = 2;
+  int32 price = 3;
+}

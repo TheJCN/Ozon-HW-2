@@ -1,0 +1,65 @@
+openapi: 3.0.3
+info:
+  title: Cart API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /user/{user_id}/cart/{sku_id}:
+    post:
+      summary: Add a product; repeated additions increase its count
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+        - name: sku_id
+          in: path
+          required: true
+          schema: {type: integer, format: int64, minimum: 1}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count]
+              properties:
+                count: {type: integer, format: int64, minimum: 1, maximum: 4294967295}
+      responses:
+        '204': {description: Product added, empty response body}
+        '400': {description: Invalid ID, count, JSON or count overflow}
+        '412': {description: Product does not exist}
+        '500': {description: Internal error or product service unavailable}
+  /user/{user_id}/cart:
+    get:
+      summary: Get saved product details sorted by SKU ascending
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+      responses:
+        '200':
+          description: Cart contents
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total_price]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [sku, name, count, price]
+                      properties:
+                        sku: {type: integer, format: int64, minimum: 1}
+                        name: {type: string}
+                        count: {type: integer, format: int64, minimum: 1, maximum: 4294967295}
+                        price: {type: integer, format: int64, minimum: 0, maximum: 4294967295}
+                  total_price: {type: integer, format: int64, minimum: 0, maximum: 4294967295}
+        '400': {description: Invalid user ID}
+        '404': {description: Cart is empty or does not exist}
+        '500': {description: Internal error or total price overflow}
+components:
+  parameters:
+    UserID:
+      name: user_id
+      in: path
+      required: true
+      schema: {type: integer, format: int64, minimum: 1}
